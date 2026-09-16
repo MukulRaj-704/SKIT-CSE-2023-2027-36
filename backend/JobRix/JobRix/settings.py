@@ -10,22 +10,73 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Every secret and environment specific value is read from backend/JobRix/.env,
+# which is git ignored (see the repository .gitignore). .env.example documents
+# every supported variable; the file itself is optional for local development.
+load_dotenv(BASE_DIR / '.env')
+
+
+def env_bool(name, default=False):
+    """Read a boolean environment variable ("1", "true", "yes", "on")."""
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def env_list(name, default=()):
+    """Read a comma separated environment variable as a list."""
+    value = os.getenv(name)
+    if not value:
+        return list(default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
+def env_int(name, default=0):
+    """Read an integer environment variable."""
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return int(value)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hpqmt!idft-oip*fni-69v9(f+9$ms3drxegvd&t=-jk!&+n3f'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: the secret key belongs to the environment, never to git.
+# Local DEBUG runs may fall back to a throwaway key, every other setup must
+# provide DJANGO_SECRET_KEY in .env.
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured(
+            'DJANGO_SECRET_KEY is missing. Copy .env.example to .env and set it, '
+            'e.g. via: python -c "from django.core.management.utils import '
+            'get_random_secret_key as k; print(k())"'
+        )
+    SECRET_KEY = 'django-insecure-local-dev-only-never-use-in-production'
+
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', ['localhost', '127.0.0.1'])
+
+# Origins allowed to send authenticated (session + CSRF) requests, for example
+# the separate React frontend during local development.
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS', [])
+
+# Public base URL of the separate React frontend. Password reset emails link
+# here, which keeps the "choose a new password" screen in the frontend.
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
 
 
 # Application definition
@@ -37,6 +88,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party
+    'rest_framework',
+    'rest_framework.authtoken',
+    # Local
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +110,9 @@ ROOT_URLCONF = 'JobRix.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # No project level HTML: the product UI is a separate React app. The
+        # only templates here are transactional emails, which live with the app
+        # that sends them (accounts/templates/emails/).
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -71,13 +130,34 @@ WSGI_APPLICATION = 'JobRix.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+#
+# SQLite is the local default. Every production credential (user, password,
+# host, port) is read from .env - nothing database related is committed.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DB_ENGINE = os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.sqlite3')
+DB_NAME = os.getenv('DJANGO_DB_NAME', str(BASE_DIR / 'db.sqlite3'))
+DB_CONN_MAX_AGE = env_int('DJANGO_DB_CONN_MAX_AGE', 0)
+
+if DB_ENGINE.endswith('sqlite3'):
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': DB_NAME,
+            'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': DB_NAME,
+            'USER': os.getenv('DJANGO_DB_USER', ''),
+            'PASSWORD': os.getenv('DJANGO_DB_PASSWORD', ''),
+            'HOST': os.getenv('DJANGO_DB_HOST', ''),
+            'PORT': os.getenv('DJANGO_DB_PORT', ''),
+            'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+        }
+    }
 
 
 # Password validation
@@ -99,6 +179,49 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Authentication & authorization
+# https://docs.djangoproject.com/en/6.1/topics/auth/
+
+AUTH_USER_MODEL = 'accounts.User'
+
+# The backend serves JSON only; the product UI is a separate React application.
+# These two URLs point at DRF's browsable API login/logout so the browsable API
+# remains usable for developers (session + CSRF based).
+LOGIN_URL = 'rest_framework:login'
+LOGOUT_REDIRECT_URL = 'rest_framework:login'
+
+
+# Django REST Framework
+# https://www.django-rest-framework.org/api-guide/settings/
+#
+# * TokenAuthentication is what the JobRix clients use
+#   (``Authorization: Token <key>``).  SessionAuthentication keeps the
+#   browsable API and the server rendered flow working.
+# * ``IsAuthenticated`` is the project wide default: every endpoint is private
+#   unless its view explicitly opts out with ``AllowAny``.
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '120/min',
+        'user': '5000/day',
+        # Scope used by the register / login / password reset views.
+        'auth': '60/min',
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
@@ -116,12 +239,46 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
+# Email
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+#
+# Local development prints messages to the console. Production SMTP credentials
+# (host, user, password) come from .env, never from this file.
+#
+# Django 6.1 refuses the deprecated EMAIL_* settings once MAILERS is defined, so
+# the backend is read through a private name here and never re-declared below.
+
+MAILER_BACKEND = os.getenv(
+    'DJANGO_MAILER_BACKEND', 'django.core.mail.backends.console.EmailBackend'
+)
+
+# A mailer backend rejects options it does not know, so the SMTP block is only
+# added when the SMTP backend is actually selected.
+mailer_options = {}
+if MAILER_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
+    mailer_options = {
+        'host': os.getenv('DJANGO_EMAIL_HOST', 'localhost'),
+        'port': env_int('DJANGO_EMAIL_PORT', 587),
+        'username': os.getenv('DJANGO_EMAIL_HOST_USER', ''),
+        'password': os.getenv('DJANGO_EMAIL_HOST_PASSWORD', ''),
+        'use_tls': env_bool('DJANGO_EMAIL_USE_TLS', True),
+        'timeout': env_int('DJANGO_EMAIL_TIMEOUT', 10),
+    }
+
 MAILERS = {
     'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        'BACKEND': MAILER_BACKEND,
+        'OPTIONS': mailer_options,
     },
 }
+
+DEFAULT_FROM_EMAIL = os.getenv('DJANGO_DEFAULT_FROM_EMAIL', 'no-reply@jobrix.local')
