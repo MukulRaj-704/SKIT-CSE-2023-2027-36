@@ -15,8 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # The whole product API. It is JSON only: the user interface is a separate
+    # React application that talks to these endpoints.
+    path('api/accounts/', include('accounts.urls')),
+    # Login / logout for the DRF browsable API (developer convenience only).
+    path('api-auth/', include('rest_framework.urls')),
 ]
