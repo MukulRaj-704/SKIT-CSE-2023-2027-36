@@ -130,3 +130,54 @@ def ingest_report(report, source, document_id=None):
         document_id,
         {"type": "report"}
     )
+def ingest_jobrix_jobs(jobs):
+    """
+    Convert JobRix API job listings into RAG documents.
+    """
+
+    documents = []
+
+    for index, job in enumerate(jobs):
+        if not isinstance(job, dict):
+            continue
+
+        job_text = "\n".join(
+            [
+                f"Job Title: {job.get('title', '')}",
+                f"Company: {job.get('company', '')}",
+                f"Category: {job.get('category', '')}",
+                f"Job Type: {job.get('job_type', '')}",
+                f"Location: {job.get('location', '')}",
+                f"Experience: {job.get('experience', '')}",
+                f"Salary: {job.get('salary', '')}",
+                f"Skills: {', '.join(job.get('tags', []))}",
+                f"Description: {job.get('description', '')}"
+            ]
+        )
+
+        metadata = {
+            "company": job.get("company", ""),
+            "category": job.get("category", ""),
+            "job_type": job.get("job_type", ""),
+            "location": job.get("location", ""),
+            "salary": job.get("salary", ""),
+            "publication_date": job.get(
+                "publication_date",
+                ""
+            ),
+            "url": job.get("url", ""),
+            "tags": job.get("tags", []),
+            "source": job.get("source", "JobRix")
+        }
+
+        document = prepare_document(
+            job_text,
+            "jobrix",
+            job.get("id") or f"jobrix_{index}",
+            metadata
+        )
+
+        if document:
+            documents.append(document)
+
+    return documents
