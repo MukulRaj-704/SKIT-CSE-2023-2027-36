@@ -1,0 +1,1 @@
+"""The ``resumes`` app: resume storage, parsing and ATS analysis for job seekers."""

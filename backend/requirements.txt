@@ -3,3 +3,7 @@ Django==6.1
 djangorestframework==3.18.0
 python-dotenv==1.2.3
 sqlparse==0.6.0
+# JobRix resume parsing engine (PDF upload -> parse once -> ATS scoring).
+# Editable so local changes under Backend/resume_parser apply immediately;
+# it declares its own dependency (pymupdf>=1.23), spaCy stays optional.
+-e ../Backend/resume_parser/resume_parser
