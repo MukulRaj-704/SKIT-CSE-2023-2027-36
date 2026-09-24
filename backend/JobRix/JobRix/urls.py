@@ -23,6 +23,7 @@ urlpatterns = [
     # The whole product API. It is JSON only: the user interface is a separate
     # React application that talks to these endpoints.
     path('api/accounts/', include('accounts.urls')),
+    path('api/resumes/', include('resumes.urls')),
     # Login / logout for the DRF browsable API (developer convenience only).
     path('api-auth/', include('rest_framework.urls')),
 ]

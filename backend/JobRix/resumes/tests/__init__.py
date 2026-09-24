@@ -1,0 +1,1 @@
+"""Test package for the ``resumes`` app (split by feature, accounts style)."""

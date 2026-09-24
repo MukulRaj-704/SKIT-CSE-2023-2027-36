@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     # Local
     'accounts',
+    'resumes',
 ]
 
 MIDDLEWARE = [
@@ -279,3 +280,41 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = os.getenv('DJANGO_DEFAULT_FROM_EMAIL', 'no-reply@jobrix.local')
+
+
+# Media (uploaded resume PDFs)
+# https://docs.djangoproject.com/en/6.1/topics/files/
+
+MEDIA_URL = os.getenv('DJANGO_MEDIA_URL', 'media/')
+MEDIA_ROOT = Path(os.getenv('DJANGO_MEDIA_ROOT', str(BASE_DIR / 'media')))
+
+# Storage backend for uploads. FileSystemStorage by default; swap DJANGO_DEFAULT_FILE_STORAGE
+# for a cloud backend (e.g. storages.backends.s3.S3Storage) in production. Django >= 5.1
+# requires the 'staticfiles' key to stay present alongside 'default'.
+STORAGES = {
+    'default': {
+        'BACKEND': os.getenv(
+            'DJANGO_DEFAULT_FILE_STORAGE',
+            'django.core.files.storage.FileSystemStorage',
+        ),
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
+
+
+# Resume uploads & parsing (resumes app)
+#
+# The engine lives in Backend/resume_parser and is installed into the venv with
+#     pip install -e Backend/resume_parser/resume_parser
+# (it pulls in pymupdf; spaCy stays optional).
+#
+# RESUME_PARSE_SPACY=True prefers spaCy PERSON detection for candidate names;
+# services.build_pipeline() automatically falls back to the regex heuristics
+# when spaCy (or its model) is not installed, so this flag is safe either way.
+RESUME_MAX_UPLOAD_SIZE_MB = env_int('RESUME_MAX_UPLOAD_SIZE_MB', 5)
+RESUME_ALLOWED_CONTENT_TYPES = env_list(
+    'RESUME_ALLOWED_CONTENT_TYPES', ['application/pdf']
+)
+RESUME_PARSE_SPACY = env_bool('RESUME_PARSE_SPACY', True)
