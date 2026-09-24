@@ -90,7 +90,7 @@ curl http://127.0.0.1:8000/api/accounts/me/ -H "Authorization: Token <key>"
 All environment specific values live in `backend/JobRix/.env`, which is listed
 in `.gitignore` and therefore never committed. `.env.example` documents every
 supported variable (Django secret key, debug flag, allowed hosts, CSRF trusted
-origins, `FRONTEND_URL`, database engine + credentials, email backend + SMTP
+origins, `FRONTEND_URL`, database engine + credentials, mailer backend + SMTP
 credentials).
 
 ```bash
@@ -107,8 +107,13 @@ Notes:
 * Without `DJANGO_SECRET_KEY` the process refuses to start unless
   `DJANGO_DEBUG=True` (local development only).
 * Password reset emails are printed to the console while
-  `DJANGO_EMAIL_BACKEND` is the console backend; switch it to the SMTP backend
+  `DJANGO_MAILER_BACKEND` is the console backend; switch it to the SMTP backend
   and provide `DJANGO_EMAIL_HOST*` credentials for real delivery.
+* The console mailer prints the MIME *encoded* message, so the link appears
+  quoted-printable escaped there (`=` shows up as `=3D`). Mail clients decode
+  that transparently, but any tool that scrapes the link from the console (or a
+  log file) must MIME-decode the body first - see
+  `email.message_from_string(...)` + `part.get_payload(decode=True)`.
 * Serving the React dev server from a different origin requires that origin in
   `DJANGO_CSRF_TRUSTED_ORIGINS` (and a CORS policy on the API; token auth needs
   no cookies, so CSRF only applies to the browsable API).

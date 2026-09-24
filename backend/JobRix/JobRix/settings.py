@@ -195,8 +195,8 @@ LOGOUT_REDIRECT_URL = 'rest_framework:login'
 # https://www.django-rest-framework.org/api-guide/settings/
 #
 # * TokenAuthentication is what the JobRix clients use
-#   (``Authorization: Token <key>``).  SessionAuthentication keeps the
-#   browsable API and the server rendered flow working.
+#   (``Authorization: Token <key>``).  SessionAuthentication keeps the DRF
+#   browsable API (``/api-auth/login/``) working for developers.
 # * ``IsAuthenticated`` is the project wide default: every endpoint is private
 #   unless its view explicitly opts out with ``AllowAny``.
 REST_FRAMEWORK = {
@@ -244,9 +244,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
