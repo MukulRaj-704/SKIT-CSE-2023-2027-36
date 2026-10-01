@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jobrix-resume-parser"
+version = "1.0.0"
+description = "JobRix resume parsing engine: parse a PDF once, then derive ATS scoring or interview questions from the same ParsedResume."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["pymupdf>=1.23"]
+
+[project.optional-dependencies]
+# spaCy only improves PERSON name detection; without it CommonResumeParser falls
+# back to regex heuristics automatically, which is why it stays optional.
+nlp = ["spacy>=3.7"]
+
+[tool.setuptools.packages.find]
+include = ["resume_parser*"]

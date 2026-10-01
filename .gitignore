@@ -14,6 +14,10 @@ __pycache__/
 db.sqlite3
 db.sqlite3-journal
 /media/
+# Uploaded resumes land under backend/JobRix/media/ (MEDIA_ROOT).
+backend/JobRix/media/
+# Editable installs (the resume engine) drop egg-info into its source tree.
+*.egg-info/
 /staticfiles/
 local_settings.py
 *.log

@@ -79,6 +79,18 @@ class ResumePipeline:
         self._parsed_resume = self._parser.parse(pdf_path=pdf_path, pdf_bytes=pdf_bytes, text=text)
         return self._parsed_resume
 
+    def load_parsed(self, parsed_resume: ParsedResume) -> ParsedResume:
+        """
+        Cache an already parsed resume instead of reading a document again.
+
+        Services that persist a ``ParsedResume`` (for example the JobRix Django
+        backend stores it as JSON next to the uploaded file) can feed it back
+        here and still run the ATS / Interview flows through this facade, so the
+        same PDF is never parsed twice.
+        """
+        self._parsed_resume = parsed_resume
+        return self._parsed_resume
+
     @property
     def parsed_resume(self) -> ParsedResume:
         if self._parsed_resume is None:
