@@ -110,7 +110,7 @@ body {
     margin-top: 3px;
 }
 
-/* Button */
+/* Authentication Button */
 .auth-button {
     width: 100%;
     height: 46px;
@@ -130,6 +130,85 @@ body {
 
 .auth-button:active {
     transform: translateY(1px);
+}
+
+/* Authentication Options */
+.auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 22px;
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #6b7280;
+}
+
+.remember-me input {
+    cursor: pointer;
+}
+
+.forgot-password {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+/* Google Button */
+.google-btn,
+.google-button {
+    width: 100%;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.google-btn:hover,
+.google-button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.google-icon {
+    font-size: 18px;
+    font-weight: 700;
+    color: #4285f4;
 }
 
 /* Sign in / Sign up switch */
@@ -168,40 +247,40 @@ body {
     .auth-content h2 {
         font-size: 22px;
     }
+
+    .auth-options {
+        gap: 12px;
+    }
 }
 
-.auth-divider {
-    text-align: center;
-    margin: 16px 0;
-    color: #777;
-    font-size: 14px;
-}
-
-.google-btn {
+.google-btn,
+.google-button {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #d0d0d0;
-    border-radius: 6px;
-    background: #fff;
-    color: #333;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.google-btn:hover {
-    background: #f5f5f5;
-}
-
-.google-btn {
+    height: 46px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1f2937;
+
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
 }
 
-.google-icon {
-    font-size: 18px;
-    font-weight: 700;
-    color: #4285f4;
+.google-btn:hover,
+.google-button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.google-btn:active,
+.google-button:active {
+    transform: translateY(1px);
 }
