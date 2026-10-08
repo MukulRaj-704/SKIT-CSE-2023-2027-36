@@ -20,6 +20,12 @@ stored as JSON on the resume row, and ATS analyses score that stored parse
 against a job description without ever re-reading the PDF:
 see [`backend/JobRix/resumes/README.md`](backend/JobRix/resumes/README.md).
 
+Job postings and applications are implemented by the `jobs` app: recruiters post
+jobs (company stamped from their profile), seekers apply with a parsed resume -
+the stored parse is scored **once** against the posting's requirements, the score
+is snapshotted on the application, and recruiters get a candidate list ranked by
+score plus a submitted → screening → interview → offer/rejected status flow.
+
 All secrets and environment specific values live in `backend/JobRix/.env`, which
 is git ignored. Start from the committed template:
 
@@ -28,5 +34,5 @@ cd backend/JobRix
 cp .env.example .env          # then set DJANGO_SECRET_KEY (+ SMTP/DB if needed)
 ../.venv/bin/python manage.py migrate
 ../.venv/bin/python manage.py runserver
-../.venv/bin/python manage.py test                # accounts + resumes suites
+../.venv/bin/python manage.py test                # accounts + resumes + jobs suites
 ```
