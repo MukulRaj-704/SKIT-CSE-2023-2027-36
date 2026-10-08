@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'accounts',
     'resumes',
     'jobs',
+    'mukul_ai',
 ]
 
 MIDDLEWARE = [
