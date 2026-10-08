@@ -24,6 +24,7 @@ urlpatterns = [
     # React application that talks to these endpoints.
     path('api/accounts/', include('accounts.urls')),
     path('api/resumes/', include('resumes.urls')),
+    path('api/mukul-ai/', include('mukul_ai.urls')),
     # Jobs + applications share one namespace (jobs_api) but serve two URL
     # prefixes: /api/jobs/... and /api/applications/... (see jobs/urls.py).
     path('api/', include('jobs.urls')),
