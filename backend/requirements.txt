@@ -7,3 +7,4 @@ sqlparse==0.6.0
 # Editable so local changes under Backend/resume_parser apply immediately;
 # it declares its own dependency (pymupdf>=1.23), spaCy stays optional.
 -e ../Backend/resume_parser/resume_parser
+sentence-transformers>=3.1.1
