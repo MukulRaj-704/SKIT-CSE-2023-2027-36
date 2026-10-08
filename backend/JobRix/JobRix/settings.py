@@ -94,6 +94,7 @@ INSTALLED_APPS = [
     # Local
     'accounts',
     'resumes',
+    'jobs',
 ]
 
 MIDDLEWARE = [
