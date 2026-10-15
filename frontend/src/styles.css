@@ -1,0 +1,192 @@
+/* JobRix frontend - one small stylesheet, no framework. */
+
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --ink: #1c2333;
+  --muted: #667085;
+  --line: #e4e7ee;
+  --brand: #3b5bdb;
+  --brand-dark: #2f4ac0;
+  --ok: #12805c;
+  --warn: #b54708;
+  --bad: #b42318;
+  --chip: #eef2ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Layout ------------------------------------------------------------------ */
+
+.nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 58px;
+}
+
+.nav .brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--brand);
+  margin-right: 8px;
+}
+
+.nav a.link { color: var(--ink); font-size: 14px; padding: 6px 4px; }
+.nav a.link.active { color: var(--brand); font-weight: 600; }
+.nav .spacer { flex: 1; }
+
+.nav .who { font-size: 13px; color: var(--muted); }
+
+main.page {
+  max-width: 1040px;
+  margin: 28px auto;
+  padding: 0 20px 60px;
+}
+
+/* Cards & generic blocks -------------------------------------------------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h1, .card h2 { margin: 0 0 14px; }
+h1 { font-size: 24px; }
+h2 { font-size: 18px; }
+.muted { color: var(--muted); font-size: 14px; }
+
+.grid { display: grid; gap: 16px; }
+.grid.two { grid-template-columns: 1fr 1fr; }
+.grid.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 800px) {
+  .grid.two, .grid.three { grid-template-columns: 1fr; }
+}
+
+/* Forms ------------------------------------------------------------------- */
+
+label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+
+input, textarea, select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+}
+
+textarea { min-height: 90px; resize: vertical; }
+
+button, .btn {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover, .btn:hover { background: var(--brand-dark); text-decoration: none; }
+button.secondary, .btn.secondary { background: #e9edf6; color: var(--ink); }
+button.secondary:hover { background: #dde3f0; }
+button.danger { background: var(--bad); }
+button.danger:hover { background: #96190f; }
+button.small { padding: 5px 10px; margin-top: 0; font-size: 13px; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Chips, badges, tables --------------------------------------------------- */
+
+.chip {
+  display: inline-block;
+  background: var(--chip);
+  color: var(--brand-dark);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 2px 4px 2px 0;
+  font-size: 12.5px;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge.ok    { background: #e6f6ef; color: var(--ok); }
+.badge.warn  { background: #fef3e6; color: var(--warn); }
+.badge.bad   { background: #fdecec; color: var(--bad); }
+.badge.neutral { background: #eef1f6; color: var(--muted); }
+
+table.list { width: 100%; border-collapse: collapse; }
+table.list th, table.list td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  vertical-align: top;
+}
+table.list th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+table.list tr:hover td { background: #fafbff; }
+
+/* Feedback ---------------------------------------------------------------- */
+
+.error {
+  background: #fdecec;
+  color: var(--bad);
+  border: 1px solid #f6c9c5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.success {
+  background: #e6f6ef;
+  color: var(--ok);
+  border: 1px solid #bfe8d8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.score {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+/* Auth page --------------------------------------------------------------- */
+
+.auth-box { max-width: 420px; margin: 60px auto; }
+.auth-box .card { padding: 28px; }
+.auth-box .switch { margin-top: 16px; font-size: 14px; text-align: center; }
+
+/* Dashboard tiles --------------------------------------------------------- */
+
+.tile { display: block; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); }
+.tile:hover { text-decoration: none; border-color: var(--brand); }
+.tile .n { font-size: 28px; font-weight: 700; color: var(--brand); }
+.tile .l { font-size: 13px; color: var(--muted); }

@@ -1,0 +1,68 @@
+// Minimal API client for the JobRix Django backend (token auth).
+//
+// * Base URL comes from VITE_API_URL (default: local runserver).
+// * The DRF token lives in localStorage (see auth.jsx) and is attached to
+//   every request as `Authorization: Token <key>`.
+// * Every non-2xx response throws ApiError carrying the parsed body, so pages
+//   can show the backend's own validation messages (e.g. 409 conflicts).
+
+const BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+
+export class ApiError extends Error {
+  constructor(status, data) {
+    super(extractDetail(data) || `Request failed (${status})`)
+    this.name = 'ApiError'
+    this.status = status
+    this.data = data
+  }
+}
+
+function extractDetail(data) {
+  if (!data || typeof data !== 'object') return typeof data === 'string' ? data : ''
+  if (typeof data.detail === 'string') return data.detail
+  // Field errors: {field: ["msg", ...]} -> "field: msg"
+  return Object.entries(data)
+    .map(([field, msgs]) => `${field}: ${(msgs || []).join(' ')}`)
+    .join(' · ')
+}
+
+async function request(path, { method = 'GET', body, rawBody } = {}) {
+  const headers = {}
+  const token = localStorage.getItem('jobrix_token')
+  if (token) headers.Authorization = `Token ${token}`
+  if (body) headers['Content-Type'] = 'application/json'
+
+  let response
+  try {
+    response = await fetch(`${BASE}${path}`, {
+      method,
+      headers,
+      body: rawBody || (body ? JSON.stringify(body) : undefined),
+    })
+  } catch {
+    throw new ApiError(0, 'Cannot reach the API. Is the backend running on ' + BASE + '?')
+  }
+
+  const isJson = (response.headers.get('content-type') || '').includes('json')
+  const data = isJson ? await response.json() : await response.text()
+  if (!response.ok) throw new ApiError(response.status, data)
+  return data
+}
+
+export const api = {
+  get: (path) => request(path),
+  post: (path, body) => request(path, { method: 'POST', body }),
+  patch: (path, body) => request(path, { method: 'PATCH', body }),
+  delete: (path) => request(path, { method: 'DELETE' }),
+  upload: (path, formData) => request(path, { method: 'POST', rawBody: formData }),
+}
+
+// List responses are paginated ({count, results}) -> always hand back rows.
+export function rows(payload) {
+  if (Array.isArray(payload)) return payload
+  return (payload && payload.results) || []
+}
+
+export function fileUrl(path) {
+  return `${BASE}${path}`
+}
