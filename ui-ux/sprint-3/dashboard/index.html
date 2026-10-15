@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JobRix job seeker dashboard prototype">
+    <title>Dashboard | JobRix</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <a href="#" class="brand">
+            <span class="brand-mark">J</span>
+            <span>Job<span class="brand-accent">Rix</span></span>
+        </a>
+
+        <div class="nav-label">WORKSPACE</div>
+        <nav class="navigation" aria-label="Main navigation">
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                <span class="nav-icon">▦</span> Dashboard
+            </a>
+            <a href="#jobs" class="nav-link" data-section="jobs">
+                <span class="nav-icon">⌕</span> Find Jobs
+            </a>
+            <a href="#applications" class="nav-link" data-section="applications">
+                <span class="nav-icon">▤</span> My Applications
+                <span class="nav-count">3</span>
+            </a>
+            <a href="#resume" class="nav-link" data-section="resume">
+                <span class="nav-icon">▧</span> My Resume
+            </a>
+            <a href="#interviews" class="nav-link" data-section="interviews">
+                <span class="nav-icon">◷</span> AI Interviews
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="help-card">
+                <div class="help-icon">?</div>
+                <strong>Need a hand?</strong>
+                <p>We're here to help with your job search.</p>
+                <button type="button" id="helpButton" class="help-link">Get help →</button>
+            </div>
+            <button type="button" class="profile-mini" id="profileButton">
+                <span class="avatar">PS</span>
+                <span class="profile-mini-info">
+                    <strong>Prateek Sharma</strong>
+                    <small>Job Seeker</small>
+                </span>
+                <span class="profile-menu-icon">···</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content" id="dashboard">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle" type="button"
+                    aria-label="Toggle navigation" aria-expanded="false">☰</button>
+            <div class="breadcrumb">Workspace <span>/</span> Dashboard</div>
+            <div class="topbar-right">
+                <span class="demo-label">DEMO DATA</span>
+                <button class="icon-button" id="notificationButton"
+                        type="button" aria-label="Notifications">
+                    ♧ <span class="notification-dot"></span>
+                </button>
+                <span class="topbar-avatar">PS</span>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+            <section class="welcome-row">
+                <div>
+                    <p class="eyebrow">THURSDAY, OCTOBER 15</p>
+                    <h1>Good morning, Prateek <span>✦</span></h1>
+                    <p class="welcome-subtitle">
+                        Your next opportunity could be closer than you think.
+                    </p>
+                </div>
+                <a href="#jobs" class="primary-button">⌕ &nbsp; Explore jobs</a>
+            </section>
+
+            <section class="profile-completion panel" aria-labelledby="profileTitle">
+                <div class="completion-icon">✧</div>
+                <div class="completion-copy">
+                    <div class="completion-heading">
+                        <h2 id="profileTitle">Complete your profile</h2>
+                        <span class="completion-percent">70% complete</span>
+                    </div>
+                    <p>A complete profile helps recruiters discover you more easily.</p>
+                    <div class="progress-track" role="progressbar"
+                         aria-label="Profile completion" aria-valuemin="0"
+                         aria-valuemax="100" aria-valuenow="70">
+                        <span style="width: 70%"></span>
+                    </div>
+                </div>
+                <button type="button" class="text-button" id="completeProfileButton">
+                    Complete profile <span>→</span>
+                </button>
+            </section>
+
+            <section class="stats-grid" aria-label="Job search overview">
+                <article class="stat-card panel">
+                    <div class="stat-top">
+                        <span class="stat-icon purple">▤</span>
+                        <span class="stat-trend">This month</span>
+                    </div>
+                    <p class="stat-label">Applications sent</p>
+                    <div class="stat-value">12</div>
+                    <p class="stat-foot"><span class="positive">↑ 3</span> compared to last month</p>
+                </article>
+
+                <article class="stat-card panel">
+                    <div class="stat-top">
+                        <span class="stat-icon blue">◷</span>
+                        <span class="stat-trend">Keep going</span>
+                    </div>
+                    <p class="stat-label">Interviews scheduled</p>
+                    <div class="stat-value">03</div>
+                    <p class="stat-foot">Across 3 different companies</p>
+                </article>
+
+                <article class="stat-card panel">
+                    <div class="stat-top">
+                        <span class="stat-icon green">✧</span>
+                        <span class="stat-trend">Good match</span>
+                    </div>
+                    <p class="stat-label">Average ATS score</p>
+                    <div class="stat-value">82<span class="value-unit">/100</span></div>
+                    <p class="stat-foot">Your resume match score</p>
+                </article>
+
+                <article class="stat-card panel">
+                    <div class="stat-top">
+                        <span class="stat-icon orange">⌕</span>
+                        <span class="stat-trend">New today</span>
+                    </div>
+                    <p class="stat-label">Recommended jobs</p>
+                    <div class="stat-value">24</div>
+                    <p class="stat-foot">Based on your profile and skills</p>
+                </article>
+            </section>
+
+            <div class="content-grid">
+                <section class="panel section-panel" id="jobs">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Recommended for you</h2>
+                            <p>Opportunities that match your profile</p>
+                        </div>
+                        <a href="#jobs" class="subtle-link" id="viewAllJobs">View all →</a>
+                    </div>
+
+                    <div class="job-list" id="jobList">
+                        <article class="job-card" data-job="Frontend Developer">
+                            <div class="company-logo logo-purple">S</div>
+                            <div class="job-details">
+                                <h3>Frontend Developer</h3>
+                                <p class="company-name">StartUp Labs <span>·</span> Jaipur, India</p>
+                                <div class="job-tags">
+                                    <span>Full-time</span><span>Entry level</span><span>React</span>
+                                </div>
+                                <p class="job-salary">₹4–7 LPA <span>·</span> Posted 2 days ago</p>
+                            </div>
+                            <button class="save-job" type="button"
+                                    aria-label="Save Frontend Developer job"
+                                    aria-pressed="false">♡</button>
+                            <button class="apply-button" type="button"
+                                    data-apply="Frontend Developer">Apply now</button>
+                        </article>
+
+                        <article class="job-card" data-job="Python Developer">
+                            <div class="company-logo logo-orange">T</div>
+                            <div class="job-details">
+                                <h3>Python Developer Intern</h3>
+                                <p class="company-name">TechNova <span>·</span> Remote</p>
+                                <div class="job-tags">
+                                    <span>Internship</span><span>Entry level</span><span>Python</span>
+                                </div>
+                                <p class="job-salary">₹15–25k/month <span>·</span> Posted 1 day ago</p>
+                            </div>
+                            <button class="save-job" type="button"
+                                    aria-label="Save Python Developer Intern job"
+                                    aria-pressed="false">♡</button>
+                            <button class="apply-button" type="button"
+                                    data-apply="Python Developer Intern">Apply now</button>
+                        </article>
+
+                        <article class="job-card" data-job="Data Analyst">
+                            <div class="company-logo logo-green">D</div>
+                            <div class="job-details">
+                                <h3>Junior Data Analyst</h3>
+                                <p class="company-name">DataBridge <span>·</span> Hybrid</p>
+                                <div class="job-tags">
+                                    <span>Full-time</span><span>SQL</span><span>Python</span>
+                                </div>
+                                <p class="job-salary">₹5–8 LPA <span>·</span> Posted 3 days ago</p>
+                            </div>
+                            <button class="save-job" type="button"
+                                    aria-label="Save Junior Data Analyst job"
+                                    aria-pressed="false">♡</button>
+                            <button class="apply-button" type="button"
+                                    data-apply="Junior Data Analyst">Apply now</button>
+                        </article>
+                    </div>
+                    <p class="empty-state" id="jobEmptyState" hidden>
+                        No matching jobs in this demo.
+                    </p>
+                </section>
+
+                <section class="panel section-panel resume-panel" id="resume">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Resume insights</h2>
+                            <p>Your latest resume analysis</p>
+                        </div>
+                        <span class="status-pill status-success">Analysed</span>
+                    </div>
+
+                    <div class="score-area">
+                        <div class="score-ring" role="img"
+                             aria-label="ATS match score 82 out of 100">
+                            <div class="score-inner">
+                                <strong>82</strong>
+                                <span>out of 100</span>
+                            </div>
+                        </div>
+                        <div class="score-description">
+                            <span class="score-status">Strong match</span>
+                            <h3>You're on the right track!</h3>
+                            <p>Your resume matches many common requirements for your target roles.</p>
+                        </div>
+                    </div>
+
+                    <div class="resume-file">
+                        <div class="file-icon">PDF</div>
+                        <div class="file-info">
+                            <strong>Prateek_Resume.pdf</strong>
+                            <small>Updated recently · Demo file</small>
+                        </div>
+                        <span class="file-check">✓</span>
+                    </div>
+
+                    <a href="index.html#resume" class="secondary-button"
+                       id="viewAnalysisButton">View ATS analysis →</a>
+                    <button type="button" class="upload-link" id="uploadResumeButton">
+                        + Upload a new resume
+                    </button>
+                </section>
+            </div>
+
+            <section class="panel section-panel applications-panel" id="applications">
+                <div class="section-heading">
+                    <div>
+                        <h2>Recent applications</h2>
+                        <p>Keep track of where you stand</p>
+                    </div>
+                    <a href="#applications" class="subtle-link" id="viewApplications">
+                        View all →
+                    </a>
+                </div>
+
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>POSITION</th>
+                                <th>COMPANY</th>
+                                <th>APPLIED ON</th>
+                                <th>STATUS</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationTable">
+                            <tr>
+                                <td><strong>UI/UX Designer</strong></td>
+                                <td>PixelCraft</td>
+                                <td>Oct 13, 2026</td>
+                                <td><span class="status-pill status-review">Under review</span></td>
+                                <td><button class="row-menu" type="button"
+                                            aria-label="UI/UX Designer application details">···</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Engineer</strong></td>
+                                <td>CodeWorks</td>
+                                <td>Oct 11, 2026</td>
+                                <td><span class="status-pill status-interview">Interview</span></td>
+                                <td><button class="row-menu" type="button"
+                                            aria-label="Software Engineer application details">···</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Product Intern</strong></td>
+                                <td>BrightPath</td>
+                                <td>Oct 08, 2026</td>
+                                <td><span class="status-pill status-pending">Submitted</span></td>
+                                <td><button class="row-menu" type="button"
+                                            aria-label="Product Intern application details">···</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="table-note">Application details shown here are illustrative sample data.</p>
+            </section>
+
+            <footer class="dashboard-footer">
+                <span>© 2026 JobRix</span>
+                <span>Built to bring your next opportunity closer.</span>
+            </footer>
+        </div>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+</body>
+</html>
