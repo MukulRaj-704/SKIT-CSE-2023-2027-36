@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     # Local
     'accounts',
     'resumes',
@@ -100,12 +101,22 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # CORS must run before CommonMiddleware so preflights are answered even
+    # when the request would otherwise be rewritten (APPEND_SLASH etc.).
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Origins the separate React app may call the API from (token auth, so no
+# credentials/CSRF headers are needed - only this origin allowlist).
+CORS_ALLOWED_ORIGINS = env_list(
+    'DJANGO_CORS_ALLOWED_ORIGINS',
+    ['http://localhost:5173', 'http://127.0.0.1:5173'],
+)
 
 ROOT_URLCONF = 'JobRix.urls'
 
