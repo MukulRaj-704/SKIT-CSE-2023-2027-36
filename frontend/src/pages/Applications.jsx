@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { api, rows, getAll } from '../api.js'
 import { Banner, Badge } from '../components/Layout.jsx'
 
 // Seeker's application tracker: status per job + withdraw action.
@@ -11,7 +11,7 @@ export default function Applications() {
 
   const load = async () => {
     try {
-      setList(rows(await api.get('/api/applications/')))
+      setList(rows(await getAll('/api/applications/')))
       setError('')
     } catch (err) {
       setError(err.message)

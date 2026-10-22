@@ -1,28 +1,22 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { api, rows, getAll } from '../api.js'
 import { Banner, Badge } from '../components/Layout.jsx'
+import JobForm, { jobToForm } from '../components/JobForm.jsx'
 
-// Recruiter home: create a posting (requirements = ATS scoring text) and
-// close/reopen own jobs.
+// Recruiter home: create, edit, close/reopen and delete postings.
 export default function MyPostings() {
   const [jobs, setJobs] = useState([])
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
-  const [form, setForm] = useState({
-    title: '',
-    location: '',
-    job_type: 'full_time',
-    salary_range: '',
-    description: '',
-    requirements: '',
-  })
+  const [form, setForm] = useState(jobToForm(null))
+  const [editingId, setEditingId] = useState(null)
 
   const load = async () => {
     try {
-      setJobs(rows(await api.get('/api/jobs/'))) // recruiter sees own, incl. closed
+      setJobs(rows(await getAll('/api/jobs/'))) // recruiter sees own, incl. closed
       setError('')
     } catch (err) {
       setError(err.message)
@@ -33,17 +27,33 @@ export default function MyPostings() {
     load()
   }, [])
 
-  const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
+  const reset = () => {
+    setForm(jobToForm(null))
+    setEditingId(null)
+  }
 
-  const create = async (e) => {
+  const startEdit = (job) => {
+    setForm(jobToForm(job))
+    setEditingId(job.id)
+    setError('')
+    setNotice('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
     setError('')
     setNotice('')
     try {
-      const job = await api.post('/api/jobs/', form)
-      setNotice(`Posted "${job.title}" (company: ${job.company_name || '—'}).`)
-      setForm({ ...form, title: '', description: '', requirements: '' })
+      if (editingId) {
+        await api.patch(`/api/jobs/${editingId}/`, form)
+        setNotice('Posting updated.')
+      } else {
+        const job = await api.post('/api/jobs/', form)
+        setNotice(`Posted "${job.title}" (company: ${job.company_name || '—'}).`)
+      }
+      reset()
       await load()
     } catch (err) {
       setError(err.message) // e.g. 400 requirements < 30 chars
@@ -79,43 +89,28 @@ export default function MyPostings() {
 
       <div className="grid two">
         <div className="card">
-          <h2>Post a new job</h2>
-          <form onSubmit={create}>
-            <label>Title</label>
-            <input value={form.title} onChange={set('title')} required />
-            <div className="grid two">
-              <div>
-                <label>Location</label>
-                <input value={form.location} onChange={set('location')} />
-              </div>
-              <div>
-                <label>Type</label>
-                <select value={form.job_type} onChange={set('job_type')}>
-                  <option value="full_time">Full time</option>
-                  <option value="part_time">Part time</option>
-                  <option value="contract">Contract</option>
-                  <option value="internship">Internship</option>
-                </select>
-              </div>
-            </div>
-            <label>Salary range</label>
-            <input
-              value={form.salary_range}
-              onChange={set('salary_range')}
-              placeholder="INR 12-18 LPA"
-            />
-            <label>Description</label>
-            <textarea value={form.description} onChange={set('description')} required />
-            <label>Requirements (min 30 chars — used for ATS scoring)</label>
-            <textarea
-              value={form.requirements}
-              onChange={set('requirements')}
-              placeholder={'Requirements: Python, Django, PostgreSQL…'}
-              required
-              minLength={30}
-            />
-            <button disabled={busy}>{busy ? 'Posting…' : 'Publish job'}</button>
-          </form>
+          <h2>{editingId ? 'Edit posting' : 'Post a new job'}</h2>
+          {editingId && (
+            <p className="muted">
+              Editing posting #{editingId}.{' '}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  reset()
+                }}
+              >
+                Cancel
+              </a>
+            </p>
+          )}
+          <JobForm
+            form={form}
+            onChange={setForm}
+            onSubmit={submit}
+            busy={busy}
+            submitLabel={editingId ? 'Save changes' : 'Publish job'}
+          />
         </div>
 
         <div className="card">
@@ -135,6 +130,12 @@ export default function MyPostings() {
                     </td>
                     <td>{job.applications_count}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>
+                      <button
+                        className="secondary small"
+                        onClick={() => startEdit(job)}
+                      >
+                        Edit
+                      </button>{' '}
                       <button className="secondary small" onClick={() => toggleActive(job)}>
                         {job.is_active ? 'Close' : 'Reopen'}
                       </button>{' '}

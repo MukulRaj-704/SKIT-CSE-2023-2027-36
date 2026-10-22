@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { getAll } from '../api.js'
 import { useAuth } from '../auth.jsx'
 
 // Role-aware landing page: the counts a mentor cares about + where to go next.
@@ -16,9 +16,9 @@ export default function Dashboard() {
       try {
         if (isSeeker) {
           const [resumes, jobs, applications] = await Promise.all([
-            api.get('/api/resumes/'),
-            api.get('/api/jobs/'),
-            api.get('/api/applications/'),
+            getAll('/api/resumes/'),
+            getAll('/api/jobs/'),
+            getAll('/api/applications/'),
           ])
           if (!cancelled)
             setStats({
@@ -28,8 +28,10 @@ export default function Dashboard() {
             })
         } else if (isRecruiter) {
           const [jobs, seekers] = await Promise.all([
-            api.get('/api/jobs/'),
-            api.get('/api/accounts/seekers/').catch(() => ({ count: '—' })),
+            getAll('/api/jobs/'),
+            // Recruiters may browse candidates; a platform admin has none to
+            // list, so that one call is allowed to fail silently.
+            getAll('/api/accounts/seekers/').catch(() => ({ count: '—' })),
           ])
           if (!cancelled) setStats({ jobs: jobs.count, seekers: seekers.count })
         }

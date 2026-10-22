@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { api, rows, getAll } from '../api.js'
 import { Banner, Badge } from '../components/Layout.jsx'
+import JobForm, { jobToForm } from '../components/JobForm.jsx'
 import { useAuth } from '../auth.jsx'
 
 const STATUSES = ['submitted', 'screening', 'interview', 'offer', 'rejected', 'withdrawn']
@@ -22,6 +23,8 @@ export default function JobDetail() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState(jobToForm(null))
 
   const load = async () => {
     try {
@@ -35,7 +38,7 @@ export default function JobDetail() {
         if (parsed.length && !resumeId) setResumeId(String(parsed[0].id))
       }
       if (isRecruiter && (user?.id === j.created_by || user?.role === 'admin')) {
-        const a = await api.get(`/api/jobs/${id}/applications/`)
+        const a = await getAll(`/api/jobs/${id}/applications/`)
         setApplications(rows(a)) // endpoint ranks by ats_score desc
       }
       setError('')
@@ -80,6 +83,32 @@ export default function JobDetail() {
     }
   }
 
+  const saveEdit = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    setNotice('')
+    try {
+      await api.patch(`/api/jobs/${id}/`, editForm)
+      setNotice('Posting updated.')
+      setEditing(false)
+      await load()
+    } catch (err) {
+      setError(err.message) // 400 short requirements, 403 not the owner
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const toggleActive = async () => {
+    try {
+      await api.patch(`/api/jobs/${id}/`, { is_active: !job.is_active })
+      await load()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   if (!job) return <p className="muted">{error || 'Loading…'}</p>
 
   return (
@@ -92,6 +121,46 @@ export default function JobDetail() {
       </p>
       <Banner kind="error">{error}</Banner>
       <Banner kind="ok">{notice}</Banner>
+
+      {isRecruiter && isOwner && (
+        <div className="card owner-bar">
+          <div>
+            <strong>You own this posting.</strong>{' '}
+            <span className="muted">
+              {job.is_active
+                ? 'It is open and accepting applications.'
+                : 'It is closed — seekers cannot apply.'}
+            </span>
+          </div>
+          <div>
+            <button
+              className="secondary small"
+              onClick={() => {
+                setEditForm(jobToForm(job))
+                setEditing(!editing)
+              }}
+            >
+              {editing ? 'Cancel edit' : 'Edit posting'}
+            </button>{' '}
+            <button className="secondary small" onClick={toggleActive}>
+              {job.is_active ? 'Close posting' : 'Reopen posting'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {editing && isRecruiter && isOwner && (
+        <div className="card">
+          <h2>Edit posting</h2>
+          <JobForm
+            form={editForm}
+            onChange={setEditForm}
+            onSubmit={saveEdit}
+            busy={busy}
+            submitLabel="Save changes"
+          />
+        </div>
+      )}
 
       <div className="grid two">
         <div className="card">

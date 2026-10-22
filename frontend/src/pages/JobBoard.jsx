@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { rows, getAll } from '../api.js'
 import { Banner } from '../components/Layout.jsx'
 
 // The job board: every signed-in member can browse open postings.
@@ -10,8 +10,7 @@ export default function JobBoard() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api
-      .get('/api/jobs/')
+    getAll('/api/jobs/')
       .then((data) => setJobs(rows(data)))
       .catch((err) => setError(err.message))
   }, [])

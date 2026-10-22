@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import { api } from '../api.js'
+import { api, getAll } from '../api.js'
 import { Banner, Badge } from '../components/Layout.jsx'
 
 // One resume: parsed summary, skills, reparse + ad-hoc ATS scoring history.
@@ -20,7 +20,7 @@ export default function ResumeDetail() {
     try {
       const [r, a] = await Promise.all([
         api.get(`/api/resumes/${id}/`),
-        api.get(`/api/resumes/${id}/ats/`),
+        getAll(`/api/resumes/${id}/ats/`),
       ])
       setResume(r)
       setAnalyses(a.results || a)

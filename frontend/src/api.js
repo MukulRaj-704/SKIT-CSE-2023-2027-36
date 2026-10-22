@@ -32,9 +32,12 @@ async function request(path, { method = 'GET', body, rawBody } = {}) {
   if (token) headers.Authorization = `Token ${token}`
   if (body) headers['Content-Type'] = 'application/json'
 
+  // DRF hands back absolute URLs for the next page - pass those through as-is.
+  const url = /^https?:\/\//.test(path) ? path : `${BASE}${path}`
+
   let response
   try {
-    response = await fetch(`${BASE}${path}`, {
+    response = await fetch(url, {
       method,
       headers,
       body: rawBody || (body ? JSON.stringify(body) : undefined),
@@ -61,6 +64,26 @@ export const api = {
 export function rows(payload) {
   if (Array.isArray(payload)) return payload
   return (payload && payload.results) || []
+}
+
+// Fetch *every* page of a paginated list and return the same {count, results}
+// shape, so a list can never silently show only the first PAGE_SIZE (20) rows.
+// DRF returns an absolute `next` URL, which `request` passes through as-is.
+export async function getAll(path) {
+  let url = path
+  const results = []
+  let count = 0
+  let guard = 0
+
+  while (url && guard < 50) {
+    guard += 1
+    const data = await request(url)
+    if (Array.isArray(data)) return { count: data.length, results: data }
+    results.push(...(data.results || []))
+    count = data.count ?? results.length
+    url = data.next || null
+  }
+  return { count, results }
 }
 
 export function fileUrl(path) {
