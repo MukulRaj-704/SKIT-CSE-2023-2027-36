@@ -190,3 +190,18 @@ table.list tr:hover td { background: #fafbff; }
 .tile:hover { text-decoration: none; border-color: var(--brand); }
 .tile .n { font-size: 28px; font-weight: 700; color: var(--brand); }
 .tile .l { font-size: 13px; color: var(--muted); }
+
+/* Owner toolbar (job detail) ---------------------------------------------- */
+
+.owner-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+}
+.owner-bar button { margin-top: 0; }
+@media (max-width: 800px) {
+  .owner-bar { flex-direction: column; align-items: flex-start; }
+}

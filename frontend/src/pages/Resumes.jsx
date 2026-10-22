@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { api, rows } from '../api.js'
+import { api, rows, getAll } from '../api.js'
 import { Banner, Badge } from '../components/Layout.jsx'
 
 // Seeker home: upload a PDF (parse-once) and manage own resumes.
@@ -14,7 +14,7 @@ export default function Resumes() {
 
   const load = async () => {
     try {
-      setList(rows(await api.get('/api/resumes/')))
+      setList(rows(await getAll('/api/resumes/')))
       setError('')
     } catch (err) {
       setError(err.message)
